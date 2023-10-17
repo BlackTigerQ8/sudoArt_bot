@@ -1,0 +1,69 @@
+{
+  "content": null,
+  "embeds": [
+    {
+      "title": "Welcome To sudoArt Community",
+      "description": "sudoArt is a start-up community that targets the creatives in Kuwait. The sudoArt Discord Server contains multiple categories, which are Programming, Designing, Engineering, and Cyber Security. Each category in our server is consisted to multiple channels to provide the perfect space for the creatives to participate and share their skills and show off their great work. Participant in those channels will cooperate on learning and solving problems to level up together.",
+      "url": "https://discord.gg/cGKxCyCA",
+      "color": 11337983,
+      "footer": {
+        "icon_url": "https://cdn.discordapp.com/attachments/1163642239709364414/1163642334039257158/sudoART1.png?ex=6540515f&is=652ddc5f&hm=6407596e96c7a6b11fea4919ba95296b437c13f57b743fe9b85fa166ea717441&"
+      },
+      "timestamp": "2023-10-17T01:03:00.000Z",
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1163642239709364414/1163642334039257158/sudoART1.png?ex=6540515f&is=652ddc5f&hm=6407596e96c7a6b11fea4919ba95296b437c13f57b743fe9b85fa166ea717441&"
+      }
+    },
+    {
+      "title": "Rule #1 No advertisements",
+      "description": "Don’t send invasive advertising, whether it be for other communities or streams. You can post your content in the media channel if it’s relevant and provides actual value for the community.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #2: Be respectful",
+      "description": "This means no mean, rude, or harassing comments. Treat others the way you want to be treated.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #3: No spamming",
+      "description": "Do not send a lot of small messages right after each other. These disrupt the chat and make it hard to scroll through the server. Please keep your messages at least 5 words long while chatting.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #4: Threats are forbidden",
+      "description": "Threats are prohibited and disallowed.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #5: Don’t share your personal information",
+      "description": "Do not share your personal information or the personal information of other users without their consent. This includes phone numbers, addresses, and any other sensitive information.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #6: Avoid false or misleading information",
+      "description": "Make sure to fact-check any information you share and only share reliable sources. Spreading false or misleading information can be harmful and undermines the trust and integrity of the community.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #7: No sharing or distributing viruses or malicious software",
+      "description": "Sharing or distributing viruses or malicious software can harm the server and its members, and is therefore strictly prohibited.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #8: Do not impersonate other users, staff members, or any other individuals or organizations",
+      "description": "This includes using similar usernames, profile pictures, or display names.",
+      "color": 16711680
+    },
+    {
+      "title": "Rules #9: Do not intentionally disrupt conversations or create a hostile environment for other users",
+      "description": "This includes trolling, flaming, or excessive arguing.",
+      "color": 16711680
+    },
+    {
+      "title": "Rule #10: Inform the admin if you have any questions",
+      "description": "Please do not hesitate to ask the <@&1163191582850293901> <@833795686771458159> if you have any questions about the sudoArt Community.",
+      "color": 14024959
+    }
+  ],
+  "attachments": []
+}
