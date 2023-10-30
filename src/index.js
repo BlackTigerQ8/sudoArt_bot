@@ -16,9 +16,11 @@ const { Routes } = require("discord-api-types/v10");
 const token = process.env.TOKEN;
 const clientId = process.env.CLIENT_ID;
 const guildId = process.env.GUILD_ID;
+const defaultRoleId = "1080243019065852016";
 
 const { commands, executeCustomInvite, inviteRoles } = require("./commands");
 const { createEmbed } = require("./embed.js");
+const { sendRoleMessage, handleRoleSelection } = require("./role.js");
 
 const rest = new REST({ version: "10" }).setToken(token);
 
@@ -36,7 +38,49 @@ const rest = new REST({ version: "10" }).setToken(token);
   }
 })();
 
+commands.push({
+  name: "getrole",
+  description: "Initiate the role assignment process",
+  type: 1,
+});
+
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isCommand() && !interaction.isButton()) return;
+
+  try {
+    if (interaction.isCommand()) {
+      switch (interaction.commandName) {
+        case "getrole":
+          if (!interaction.guild) {
+            await interaction.reply({
+              content: "Please use this command in the server.",
+              ephemeral: true,
+            });
+            return;
+          }
+
+          const member = await interaction.guild.members.fetch(
+            interaction.user.id
+          );
+          await sendRoleMessage(member);
+          await interaction.reply({
+            content: "Please check your DMs for role selection.",
+            ephemeral: true,
+          });
+          break;
+        // ... (other cases)
+      }
+    } else if (interaction.isButton()) {
+      await handleRoleSelection(interaction);
+    }
+  } catch (error) {
+    console.error(`Error with interaction: ${error}`);
+    interaction.reply("An error occurred while processing your request.");
+  }
+});
+
 client.on("guildMemberAdd", async (member) => {
+  console.log(`A user joined: ${member.user.tag}`);
   const welcomeEmbed = createEmbed(member.user);
   const channel = member.guild.channels.cache.find(
     (ch) => ch.name === "welcome"
@@ -72,6 +116,20 @@ client.on("guildMemberAdd", async (member) => {
   }
 
   client.guildInvites.set(member.guild.id, newInvites);
+
+  try {
+    const defaultRole = member.guild.roles.cache.get(defaultRoleId);
+
+    if (defaultRole) {
+      await member.roles.add(defaultRole);
+    } else {
+      console.warn(`Default role not found: ${defaultRoleId}`);
+    }
+  } catch (error) {
+    console.error(
+      `Failed to assign default role to ${member.user.tag}: ${error}`
+    );
+  }
 });
 
 client.on("interactionCreate", async (interaction) => {
