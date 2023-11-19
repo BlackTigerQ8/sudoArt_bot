@@ -36,12 +36,21 @@ client.on("interactionCreate", async (interaction) => {
     if (!interaction.isButton()) return;
 
     const roles = [
-      { id: "1175761559637721098", name: "Designer" },
-      // { id: "1080242975843561533", name: "Digital Artist" },
-      { id: "1175761481204244520", name: "Programmer" },
-      { id: "1175761745667690526", name: "Engineer" },
-      { id: "1175761792648089609", name: "Hacker" },
+      { id: "1080242882604191764", name: "3D Designer" },
+      { id: "1080242975843561533", name: "Digital Artist" },
+      { id: "1080243019065852016", name: "Programmer" },
+      { id: "1104062368218103980", name: "ُEngineer" },
+      { id: "1104066025340797050", name: "Hacker" },
     ];
+
+    // // TEST !!!!!!!!!!!!!
+    // const roles = [
+    //   { id: "1175761559637721098", name: "3D Designer" },
+    //   { id: "1175891469421269002", name: "Digital Artist" },
+    //   { id: "1175761481204244520", name: "Programmer" },
+    //   { id: "1175761745667690526", name: "ُEngineer" },
+    //   { id: "1175761792648089609", name: "Hacker" },
+    // ];
 
     const roleId = interaction.customId.replace("role_select_", "");
     const selectedRole = roles[parseInt(roleId)];

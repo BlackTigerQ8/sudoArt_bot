@@ -10,6 +10,15 @@ async function sendRoleMessage(member) {
       { id: "1104066025340797050", name: "Hacker" },
     ];
 
+    // // TEST !!!!!!!!!!!!!
+    // const roles = [
+    //   { id: "1175761559637721098", name: "3D Designer" },
+    //   { id: "1175891469421269002", name: "Digital Artist" },
+    //   { id: "1175761481204244520", name: "Programmer" },
+    //   { id: "1175761745667690526", name: "ُEngineer" },
+    //   { id: "1175761792648089609", name: "Hacker" },
+    // ];
+
     const row = new ActionRowBuilder();
     const buttons = [];
 
