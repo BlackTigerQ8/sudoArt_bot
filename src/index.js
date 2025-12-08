@@ -13,7 +13,12 @@
  */
 
 require("dotenv").config();
-const { Client, IntentsBitField, GatewayIntentBits } = require("discord.js");
+const {
+  Client,
+  IntentsBitField,
+  Partials,
+  EmbedBuilder,
+} = require("discord.js");
 
 // Import modules
 const { createEmbed } = require("./embed.js");
@@ -68,8 +73,13 @@ const client = new Client({
     IntentsBitField.Flags.GuildMessages,
     IntentsBitField.Flags.GuildMembers,
     IntentsBitField.Flags.MessageContent,
+    IntentsBitField.Flags.DirectMessages,
   ],
+  partials: [Partials.Channel], // Required to receive DMs
 });
+
+// Admin User ID for contact
+const ADMIN_USER_ID = process.env.ADMIN_USER_ID;
 
 // =====================================================
 // WELCOME MODULE - Public Embed on Member Join
@@ -104,6 +114,53 @@ client.on("guildMemberAdd", async (member) => {
     }
   } catch (error) {
     console.error("[Welcome] Error sending welcome message:", error);
+  }
+});
+
+// =====================================================
+// DM HANDLER - Auto-reply to Direct Messages
+// =====================================================
+client.on("messageCreate", async (message) => {
+  // Ignore bots
+  if (message.author.bot) return;
+
+  // Only handle DMs (no guild means it's a DM)
+  if (message.guild) return;
+
+  try {
+    console.log(
+      `[DM] Received message from ${message.author.tag}: ${message.content}`
+    );
+
+    const dmReply = new EmbedBuilder()
+      .setTitle("🤖 Hello! | أهلاً!")
+      .setDescription(
+        `Thanks for reaching out! I'm the official bot for **Eng. Abdullah Alsultani's** community server.\n` +
+          `I can only assist within the server and don't respond to DMs.\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `شكراً لتواصلك! أنا البوت الرسمي لسيرفر مجتمع **م. عبدالله السلطاني**.\n` +
+          `أقدر أساعدك فقط داخل السيرفر ولا أرد على الرسائل الخاصة.`
+      )
+      .addFields(
+        {
+          name: "💬 Need to talk to the Admin? | تبي تتواصل مع الأدمن؟",
+          value: `Contact | تواصل مع: <@${ADMIN_USER_ID}>`,
+          inline: false,
+        },
+        {
+          name: "🌐 Website | الموقع",
+          value: "[aaalenezi.com](https://www.aaalenezi.com)",
+          inline: true,
+        }
+      )
+      .setColor(0x5865f2)
+      .setFooter({ text: "Abdullah Alsultani Community" })
+      .setTimestamp();
+
+    await message.reply({ embeds: [dmReply] });
+    console.log(`[DM] Sent auto-reply to ${message.author.tag}`);
+  } catch (error) {
+    console.error("[DM] Error sending reply:", error);
   }
 });
 
