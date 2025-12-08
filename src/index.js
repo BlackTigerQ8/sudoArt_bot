@@ -1,96 +1,148 @@
-require("dotenv").config();
+/**
+ * =====================================================
+ * DISCORD COMMUNITY BOT - Main Entry Point
+ * =====================================================
+ * A self-driving community bot for Engineers, Programmers,
+ * Hackers, and Designers.
+ *
+ * Modules:
+ * - Welcome: Public embed messages for new members
+ * - Engagement: Daily challenges (coding, security, engineering)
+ * - Janitor: Auto-moderation (spam, code formatting)
+ * - Instructor: Workshop schedule command
+ */
 
-const { Client, Intents, IntentsBitField } = require("discord.js");
+require("dotenv").config();
+const { Client, IntentsBitField, GatewayIntentBits } = require("discord.js");
+
+// Import modules
+const { createEmbed } = require("./embed.js");
+const { initEngagement } = require("./modules/engagement.js");
+const { initJanitor } = require("./modules/janitor.js");
+const { initInstructor } = require("./modules/instructor.js");
+
+// =====================================================
+// ENVIRONMENT VARIABLES
+// =====================================================
+const TOKEN = process.env.TOKEN?.trim();
+const GUILD_ID = process.env.GUILD_ID;
+const CLIENT_ID = process.env.CLIENT_ID;
+const WELCOME_CHANNEL_ID = process.env.WELCOME_CHANNEL_ID;
+
+// Channels to ignore for auto-moderation (comma-separated in .env)
+const IGNORED_CHANNELS =
+  process.env.IGNORED_CHANNELS?.split(",").map((id) => id.trim()) || [];
+
+// =====================================================
+// VALIDATION
+// =====================================================
+if (!TOKEN) {
+  console.error("❌ Error: TOKEN is not defined in the environment variables.");
+  process.exit(1);
+}
+
+if (!GUILD_ID) {
+  console.warn(
+    "⚠️ Warning: GUILD_ID not set. Some features may not work correctly."
+  );
+}
+
+if (!CLIENT_ID) {
+  console.warn(
+    "⚠️ Warning: CLIENT_ID not set. Slash commands will not be registered."
+  );
+}
+
+if (!process.env.OPENROUTER_API_KEY) {
+  console.warn(
+    "⚠️ Warning: OPENROUTER_API_KEY not set. AI challenges will use fallback questions."
+  );
+}
+
+// =====================================================
+// CLIENT SETUP
+// =====================================================
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildMessages,
     IntentsBitField.Flags.GuildMembers,
-    IntentsBitField.Flags.GuildInvites,
     IntentsBitField.Flags.MessageContent,
-    IntentsBitField.Flags.GuildMessageReactions,
   ],
 });
 
-const token = process.env.TOKEN;
-const guildID = process.env.GUILD_ID;
-const { createEmbed } = require("./embed.js");
-const { sendRoleMessage } = require("./role.js");
-
-// Send Embed and private message to the user to select a role
+// =====================================================
+// WELCOME MODULE - Public Embed on Member Join
+// =====================================================
 client.on("guildMemberAdd", async (member) => {
-  console.log(`A user joined: ${member.user.tag}`);
-  const welcomeEmbed = createEmbed(member.user);
-  const channel = member.guild.channels.cache.find(
-    (ch) => ch.name === "welcome"
-  );
-  if (channel) channel.send({ embeds: [welcomeEmbed] });
-
-  // Send a private message for role selection
-  await sendRoleMessage(member);
-});
-
-///////////////////////////
-client.on("interactionCreate", async (interaction) => {
   try {
-    if (!interaction.isButton()) return;
+    console.log(`[Welcome] New member joined: ${member.user.tag}`);
 
-    const roles = [
-      { id: "1080242882604191764", name: "3D Designer" },
-      { id: "1080242975843561533", name: "Digital Artist" },
-      { id: "1080243019065852016", name: "Programmer" },
-      { id: "1104062368218103980", name: "ُEngineer" },
-      { id: "1104066025340797050", name: "Hacker" },
-    ];
+    // Create the welcome embed
+    const welcomeEmbed = createEmbed(member.user);
 
-    // // TEST !!!!!!!!!!!!!
-    // const roles = [
-    //   { id: "1175761559637721098", name: "3D Designer" },
-    //   { id: "1175891469421269002", name: "Digital Artist" },
-    //   { id: "1175761481204244520", name: "Programmer" },
-    //   { id: "1175761745667690526", name: "ُEngineer" },
-    //   { id: "1175761792648089609", name: "Hacker" },
-    // ];
+    // Find the welcome channel (by ID or by name)
+    let channel;
+    if (WELCOME_CHANNEL_ID) {
+      channel = await member.guild.channels
+        .fetch(WELCOME_CHANNEL_ID)
+        .catch(() => null);
+    }
 
-    const roleId = interaction.customId.replace("role_select_", "");
-    const selectedRole = roles[parseInt(roleId)];
+    // Fallback to channel name if ID not found
+    if (!channel) {
+      channel = member.guild.channels.cache.find((ch) => ch.name === "welcome");
+    }
 
-    if (selectedRole) {
-      const guildId = guildID;
-      const guild = client.guilds.cache.get(guildId);
-
-      if (!guild) {
-        console.error("Guild not found!");
-        return await interaction.reply("Guild not found.");
-      }
-
-      const member = await guild.members.fetch(interaction.user.id);
-
-      if (!member) {
-        console.error("Member not found!");
-        return await interaction.reply("Member not found.");
-      }
-
-      const role = guild.roles.cache.get(selectedRole.id);
-
-      if (!role) {
-        console.error("Role not found!");
-        return await interaction.reply("Role not found.");
-      }
-
-      await member.roles.add(role);
-      await interaction.reply(
-        `You've been assigned the role: **${role.name}**.\n-------\nIf you have other skills that fits in other categories, we can **assign multiple roles** to expand your view in the community. Feel free to **contact the Admin** for another roles.`
-      );
+    if (channel) {
+      await channel.send({ embeds: [welcomeEmbed] });
+      console.log(`[Welcome] Sent welcome embed for ${member.user.tag}`);
+    } else {
+      console.warn("[Welcome] Could not find welcome channel!");
     }
   } catch (error) {
-    console.error("Error assigning role:", error);
-    await interaction.reply("Failed to assign the role.");
+    console.error("[Welcome] Error sending welcome message:", error);
   }
 });
 
+// =====================================================
+// BOT READY EVENT
+// =====================================================
 client.once("ready", async () => {
-  console.log("Bot is ready!");
+  console.log("═══════════════════════════════════════════");
+  console.log(`🤖 Bot is online: ${client.user.tag}`);
+  console.log(`📊 Serving ${client.guilds.cache.size} guild(s)`);
+  console.log("═══════════════════════════════════════════");
+
+  // Initialize Engagement Module (Daily Challenges)
+  initEngagement(client);
+
+  // Initialize Janitor Module (Auto-Moderation)
+  initJanitor(client, IGNORED_CHANNELS);
+
+  // Initialize Instructor Module (Schedule Command)
+  // Pass GUILD_ID for instant command updates (guild-specific commands)
+  if (CLIENT_ID) {
+    initInstructor(client, TOKEN, CLIENT_ID, GUILD_ID);
+  }
+
+  console.log("═══════════════════════════════════════════");
+  console.log("✅ All modules initialized successfully!");
+  console.log("═══════════════════════════════════════════");
 });
 
-client.login(token);
+// =====================================================
+// ERROR HANDLING
+// =====================================================
+client.on("error", (error) => {
+  console.error("[Bot] Client error:", error);
+});
+
+process.on("unhandledRejection", (error) => {
+  console.error("[Bot] Unhandled promise rejection:", error);
+});
+
+// =====================================================
+// LOGIN
+// =====================================================
+client.login(TOKEN);

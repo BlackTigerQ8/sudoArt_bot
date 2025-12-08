@@ -1,16 +1,24 @@
 {
-  "name": "javascript",
-  "version": "1.0.0",
-  "description": "",
+  "name": "community-bot",
+  "version": "2.0.0",
+  "description": "Self-driving community bot for Engineers, Programmers, Hackers, and Designers",
   "main": "src/index.js",
   "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "discord",
+    "bot",
+    "community",
+    "moderation"
+  ],
   "author": "Eng. Abdullah Alenezi",
   "license": "ISC",
   "dependencies": {
     "discord.js": "^14.13.0",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "node-cron": "^3.0.3"
   }
 }
