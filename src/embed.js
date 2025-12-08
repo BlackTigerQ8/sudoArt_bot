@@ -1,9 +1,4 @@
-const {
-  EmbedBuilder,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-} = require("discord.js");
+const { EmbedBuilder } = require("discord.js");
 
 /**
  * =====================================================
@@ -17,14 +12,11 @@ const SERVER_CONFIG = {
   tagline: "Engineers • Programmers • Hackers • Designers",
   website: "https://www.aaalenezi.com",
 
-  // Your server banner/welcome image (use a wide image ~1200x400)
-  // You can use imgur, discord cdn, or any image host
-  bannerURL: "./src/assets/server_banner.png",
-
   // Server icon/logo
-  iconURL: "./src/assets/server_avatar.png",
+  iconURL:
+    "https://cdn.discordapp.com/attachments/1168549225118847027/1175875562569465908/server_avatar.png?ex=6937cb34&is=693679b4&hm=fd7ca3c6f46e927399d36b14130ec52a1b6e8a086fcac5c23e8b40f1b96bf944&",
 
-  // Accent color (hex) - Use a bold, modern color
+  // Accent color (hex)
   accentColor: 0x5865f2, // Discord Blurple
   // Other nice options:
   // 0x00D26A - Emerald Green
@@ -32,12 +24,6 @@ const SERVER_CONFIG = {
   // 0x7C3AED - Purple
   // 0x0EA5E9 - Sky Blue
   // 0xF59E0B - Amber
-};
-
-// Channel IDs for quick links (set these in .env or hardcode)
-const CHANNELS = {
-  rules: process.env.CHANNEL_ID_RULES,
-  general: process.env.CHANNEL_ID_GENERAL,
 };
 
 /**
@@ -76,7 +62,7 @@ function createEmbed(user, guild = null) {
   const embed = new EmbedBuilder()
     // Header with greeting
     .setAuthor({
-      name: `Welcome to ${SERVER_CONFIG.name}`,
+      name: `Eng. Abdullah Alsultani`,
       iconURL: SERVER_CONFIG.iconURL,
       url: SERVER_CONFIG.website,
     })
@@ -96,33 +82,12 @@ function createEmbed(user, guild = null) {
     // User avatar as thumbnail
     .setThumbnail(user.displayAvatarURL({ dynamic: true, size: 256 }))
 
-    // Banner image
-    .setImage(SERVER_CONFIG.bannerURL)
-
-    // Info fields
-    .addFields(
-      {
-        name: "🚀 Quick Start",
-        value:
-          `${
-            CHANNELS.rules ? `📜 <#${CHANNELS.rules}> — Read the rules\n` : ""
-          }` +
-          `${
-            CHANNELS.general ? `💬 <#${CHANNELS.general}> — Start chatting` : ""
-          }` +
-          `${
-            !CHANNELS.rules && !CHANNELS.introductions && !CHANNELS.general
-              ? "Explore the channels and say hi!"
-              : ""
-          }`,
-        inline: true,
-      },
-      {
-        name: "📊 Community",
-        value: getMilestoneMessage(memberCount),
-        inline: true,
-      }
-    )
+    // Member count field
+    .addFields({
+      name: "📊 Community",
+      value: getMilestoneMessage(memberCount),
+      inline: false,
+    })
 
     // Accent color
     .setColor(SERVER_CONFIG.accentColor)
@@ -142,38 +107,4 @@ function createEmbed(user, guild = null) {
   return embed;
 }
 
-/**
- * Create welcome buttons (optional - for extra flair)
- * @returns {ActionRowBuilder} Button row
- */
-function createWelcomeButtons() {
-  return new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setLabel("🌐 Website")
-      .setStyle(ButtonStyle.Link)
-      .setURL(SERVER_CONFIG.website),
-    new ButtonBuilder()
-      .setLabel("📜 Rules")
-      .setStyle(ButtonStyle.Link)
-      .setURL(
-        `https://discord.com/channels/${process.env.GUILD_ID}/${CHANNELS.rules}`
-      )
-      .setDisabled(!CHANNELS.rules) // Disable if no rules channel
-  );
-}
-
-/**
- * Create a complete welcome message with embed + buttons
- * @param {User} user - Discord user
- * @param {Guild} guild - Discord guild
- * @returns {Object} Message payload with embeds and components
- */
-function createWelcomeMessage(user, guild = null) {
-  return {
-    embeds: [createEmbed(user, guild)],
-    // Uncomment to add buttons:
-    // components: [createWelcomeButtons()],
-  };
-}
-
-module.exports = { createEmbed, createWelcomeMessage, createWelcomeButtons };
+module.exports = { createEmbed };
