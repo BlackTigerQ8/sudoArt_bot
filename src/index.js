@@ -78,8 +78,8 @@ client.on("guildMemberAdd", async (member) => {
   try {
     console.log(`[Welcome] New member joined: ${member.user.tag}`);
 
-    // Create the welcome embed
-    const welcomeEmbed = createEmbed(member.user);
+    // Create the welcome embed (pass guild for member count)
+    const welcomeEmbed = createEmbed(member.user, member.guild);
 
     // Find the welcome channel (by ID or by name)
     let channel;
@@ -96,7 +96,9 @@ client.on("guildMemberAdd", async (member) => {
 
     if (channel) {
       await channel.send({ embeds: [welcomeEmbed] });
-      console.log(`[Welcome] Sent welcome embed for ${member.user.tag}`);
+      console.log(
+        `[Welcome] Sent welcome embed for ${member.user.tag} (Member #${member.guild.memberCount})`
+      );
     } else {
       console.warn("[Welcome] Could not find welcome channel!");
     }
