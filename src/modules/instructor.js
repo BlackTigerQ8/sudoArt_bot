@@ -28,7 +28,7 @@ let scheduleData = fs.existsSync(DB_PATH)
   : { title: "TBA", date: "TBA", description: "No workshop scheduled yet." };
 
 // Import engagement for test command
-const { testChallenge } = require("./engagement.js");
+const { testChallenge, postManualChallenge } = require("./engagement.js");
 
 /**
  * 1. Define Commands
@@ -47,6 +47,16 @@ const commands = [
     .setName("test_challenge")
     .setDescription("ADMIN ONLY: Test AI daily challenge (posts to channel)")
     .setDefaultMemberPermissions(0x0000000000000008), // Administrator only
+
+  new SlashCommandBuilder()
+    .setName("challenge")
+    .setDescription("Request a fun trivia question now!")
+    .addStringOption((option) =>
+      option
+        .setName("topic")
+        .setDescription("Specific topic (e.g. Python, Space, History)")
+        .setRequired(false)
+    ),
 ];
 
 /**
@@ -161,6 +171,16 @@ async function handleInteractions(interaction) {
           content: `❌ Error: ${err.message}`,
         });
       }
+    }
+
+    // E. Handle /challenge (Public - Manual Trigger)
+    if (
+      interaction.isChatInputCommand() &&
+      interaction.commandName === "challenge"
+    ) {
+      console.log(`[Instructor] /challenge used by ${interaction.user.tag}`);
+      const topic = interaction.options.getString("topic");
+      await postManualChallenge(interaction, topic);
     }
   } catch (error) {
     console.error("[Instructor] Error handling interaction:", error);

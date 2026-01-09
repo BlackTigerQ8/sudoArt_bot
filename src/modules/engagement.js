@@ -32,15 +32,15 @@ const CHANNEL_MAP = {
 };
 
 // The Prompt to send to the AI
-const SYSTEM_PROMPT = `You are a trivia generator for a Discord community of Engineers, Programmers, Hackers, and Designers.
-Generate 1 challenging but fun question for the requested topic.
-Return ONLY raw JSON (no markdown, no code blocks) with this exact structure:
+const SYSTEM_PROMPT = `You are a fun trivia generator for a Discord community of Engineers in Kuwait.
+Generate 1 simple, fun, and engaging question in Kuwaiti Arabic dialect (or simple Arabic).
+Return ONLY raw JSON (no markdown) with this structure:
 {
-  "title": "Short Title with Emoji (e.g. 🔐 Security Challenge)",
-  "question": "The question text",
+  "title": "Short Title in Arabic with Emoji (e.g. 🔐 تحدي الهاكرز)",
+  "question": "The question text in Kuwaiti Arabic",
   "options": ["A) option1", "B) option2", "C) option3", "D) option4"],
   "answer": "A",
-  "explanation": "A short educational explanation (2-3 sentences)."
+  "explanation": "Short explanation in Arabic."
 }`;
 
 /**
@@ -95,7 +95,7 @@ async function fetchAIQuestion(topic) {
 
       // Validate and normalize the response
       const validated = {
-        title: parsed.title || "🧩 Daily Challenge",
+        title: parsed.title || "🧩 سؤال اليوم",
         question: parsed.question || "No question generated",
         options: Array.isArray(parsed.options) ? parsed.options : [],
         answer: parsed.answer || "N/A",
@@ -126,37 +126,35 @@ async function fetchAIQuestion(topic) {
 function getFallbackQuestion() {
   const fallbacks = [
     {
-      title: "🧩 Community Discussion",
-      question:
-        "What's the most interesting project you're working on right now?",
+      title: "🧩 نقاش مجتمعي",
+      question: "شنو اكثر مشروع هندسي او برمجي عاجبك هالفترة؟",
       options: [],
       answer: "N/A",
-      explanation: "Share your projects and learn from each other!",
+      explanation: "شاركنا بمشروعك خلنا نستفيد!",
     },
     {
-      title: "💡 Quick Poll",
-      question: "Which skill do you want to improve most this month?",
+      title: "💡 تصويت سريع",
+      question: "شنو ودك تتعلم اكثر هالشهر؟",
       options: [
-        "A) Frontend Development",
-        "B) Backend/APIs",
-        "C) DevOps/Security",
-        "D) Design/UI-UX",
+        "A) برمجة المواقع",
+        "B) الذكاء الاصطناعي",
+        "C) الامن السيبراني",
+        "D) التصميم",
       ],
-      answer: "All are great choices!",
-      explanation: "Pick one and focus on it for the best results.",
+      answer: "كل الاختيارات ممتازة!",
+      explanation: "اختار المجال اللي تحبه وركز عليه.",
     },
     {
-      title: "🔥 Hot Take",
-      question: "Tabs or Spaces? Defend your answer!",
+      title: "🔥 سؤال للنقاش",
+      question: "منو اقوى بالتطوير: الماك ولا الويندوز؟",
       options: [
-        "A) Tabs forever",
-        "B) Spaces only",
-        "C) Whatever the linter says",
-        "D) I use both chaotically",
+        "A) Mac (اكيد)",
+        "B) Windows (الجوكر)",
+        "C) Linux (للمحترفين)",
+        "D) ما تفرق معاي",
       ],
-      answer: "C",
-      explanation:
-        "Consistency within a project matters more than the choice itself!",
+      answer: "D",
+      explanation: "بالنهاية الاداة ما تفرق كثر المبرمج نفسه!",
     },
   ];
   return fallbacks[Math.floor(Math.random() * fallbacks.length)];
@@ -164,6 +162,69 @@ function getFallbackQuestion() {
 
 /**
  * Main function to post the challenge
+ */
+/**
+ * Helper to build the embed
+ */
+function createChallengeEmbed(data, topic) {
+  const optionsText =
+    Array.isArray(data.options) && data.options.length > 0
+      ? data.options.join("\n")
+      : "💬 شاركنا رايك بالتعليقات";
+
+  const embed = new EmbedBuilder()
+    .setTitle(data.title || "🧩 سؤال اليوم")
+    .setDescription(
+      `**الموضوع:** ${topic}\n\n${data.question || "شاركونا اجاباتكم!"}`
+    )
+    .addFields({
+      name: "الخيارات",
+      value: optionsText,
+    })
+    .setColor(0x00d26a)
+    .setFooter({ text: "الاجابة الصحيحة موجودة بالردود 👇" })
+    .setTimestamp();
+
+  return embed;
+}
+
+/**
+ * Shared logic to add content to a message (reactions + thread)
+ */
+async function finalizeChallengeMessage(message, data) {
+  // Add Reactions (Poll)
+  if (Array.isArray(data.options) && data.options.length > 0) {
+    try {
+      await message.react("🇦");
+      if (data.options.length > 1) await message.react("🇧");
+      if (data.options.length > 2) await message.react("🇨");
+      if (data.options.length > 3) await message.react("🇩");
+    } catch (err) {
+      console.error("[Engagement] Failed to react:", err);
+    }
+  }
+
+  // Thread for discussion
+  try {
+    if (message.channel.type !== 1) {
+      // 1 = DM
+      const thread = await message.startThread({
+        name: `تحدي - ${data.title}`,
+        autoArchiveDuration: 1440,
+      });
+
+      // Send the answer inside the thread (spoiler hidden)
+      await thread.send(
+        `||**الاجابة:** ${data.answer}\n\n**الشرح:** ${data.explanation}||`
+      );
+    }
+  } catch (err) {
+    console.warn("[Engagement] Could not create thread:", err.message);
+  }
+}
+
+/**
+ * Main function to post the challenge (Scheduled)
  */
 async function postDailyChallenge(client) {
   // 1. Pick a category based on the day of the week
@@ -190,39 +251,59 @@ async function postDailyChallenge(client) {
   const data = await fetchAIQuestion(todayConfig.topic);
 
   // 3. Build Embed
-  const optionsText = Array.isArray(data.options) && data.options.length > 0
-    ? data.options.join("\n")
-    : "💬 Open Discussion";
-
-  const embed = new EmbedBuilder()
-    .setTitle(data.title || "🧩 Daily Challenge")
-    .setDescription(`**Topic:** ${todayConfig.topic}\n\n${data.question || "Share your thoughts!"}`)
-    .addFields({
-      name: "Options",
-      value: optionsText,
-    })
-    .setColor(0x00d26a)
-    .setFooter({ text: "Check the thread for the answer! 👇" })
-    .setTimestamp();
+  const embed = createChallengeEmbed(data, todayConfig.topic);
 
   // 4. Send to the SPECIFIC channel
   const channel = await client.channels.fetch(targetChannelId);
   const message = await channel.send({ embeds: [embed] });
 
-  // 5. Thread for discussion
-  const thread = await message.startThread({
-    name: `Daily Challenge - ${new Date().toLocaleDateString()}`,
-    autoArchiveDuration: 1440,
-  });
-
-  // 6. Send the answer inside the thread (spoiler hidden)
-  await thread.send(
-    `||**ANSWER:** ${data.answer}\n\n**EXPLANATION:** ${data.explanation}||`
-  );
+  // 5. Finalize
+  await finalizeChallengeMessage(message, data);
 
   console.log(
     `[Engagement] ✅ Challenge posted to ${todayConfig.type} channel`
   );
+}
+
+/**
+ * Handle Slash Command Challenge
+ * @param {Interaction} interaction
+ * @param {string} topic
+ */
+async function postManualChallenge(interaction, topic) {
+  // If no topic provided, pick a random fun one
+  if (!topic) {
+    const funTopics = [
+      "Tech History",
+      "SpaceX",
+      "Gaming Facts",
+      "Retro Computers",
+      "AI Future",
+    ];
+    topic = funTopics[Math.floor(Math.random() * funTopics.length)];
+  }
+
+  // Defer reply since AI can take time
+  await interaction.deferReply();
+
+  try {
+    const data = await fetchAIQuestion(topic);
+    const embed = createChallengeEmbed(data, topic);
+
+    // Send as reply
+    const message = await interaction.editReply({
+      embeds: [embed],
+      fetchReply: true,
+    });
+
+    // Add reactions & thread
+    await finalizeChallengeMessage(message, data);
+  } catch (err) {
+    console.error("[Engagement] Manual challenge error:", err);
+    await interaction.editReply(
+      "❌ Failed to generate challenge. Try again later."
+    );
+  }
 }
 
 function initEngagement(client) {
@@ -248,4 +329,9 @@ async function testChallenge() {
   await postDailyChallenge(initEngagement._client);
 }
 
-module.exports = { initEngagement, postDailyChallenge, testChallenge };
+module.exports = {
+  initEngagement,
+  postDailyChallenge,
+  postManualChallenge,
+  testChallenge,
+};
