@@ -32,16 +32,17 @@ const CHANNEL_MAP = {
 };
 
 // The Prompt to send to the AI
-const SYSTEM_PROMPT = `You are a fun trivia generator for a Discord community of Engineers in Kuwait.
-Generate 1 simple, fun, and engaging question in Kuwaiti Arabic dialect (or simple Arabic).
+const SYSTEM_PROMPT = `You are a fun trivia generator for a Discord community of Engineers.
+Generate 1 simple, fun, and engaging question in English.
 Return ONLY raw JSON (no markdown) with this structure:
 {
-  "title": "Short Title in Arabic with Emoji (e.g. 🔐 تحدي الهاكرز)",
-  "question": "The question text in Kuwaiti Arabic",
+  "title": "Short Title with Emoji (e.g. 🔐 Security Challenge)",
+  "question": "The question text",
   "options": ["A) option1", "B) option2", "C) option3", "D) option4"],
   "answer": "A",
-  "explanation": "Short explanation in Arabic."
-}`;
+  "explanation": "Short educational explanation (2-3 sentences)."
+}
+IMPORTANT: options MUST start with "A) ", "B) ", "C) ", "D) " respectively.`;
 
 /**
  * Fetch a fresh question from OpenRouter AI
@@ -126,35 +127,37 @@ async function fetchAIQuestion(topic) {
 function getFallbackQuestion() {
   const fallbacks = [
     {
-      title: "🧩 نقاش مجتمعي",
-      question: "شنو اكثر مشروع هندسي او برمجي عاجبك هالفترة؟",
+      title: "🧩 Community Discussion",
+      question:
+        "What's the most interesting project you're working on right now?",
       options: [],
       answer: "N/A",
-      explanation: "شاركنا بمشروعك خلنا نستفيد!",
+      explanation: "Share your projects and learn from each other!",
     },
     {
-      title: "💡 تصويت سريع",
-      question: "شنو ودك تتعلم اكثر هالشهر؟",
+      title: "💡 Quick Poll",
+      question: "Which skill do you want to improve most this month?",
       options: [
-        "A) برمجة المواقع",
-        "B) الذكاء الاصطناعي",
-        "C) الامن السيبراني",
-        "D) التصميم",
+        "A) Frontend Development",
+        "B) Backend/APIs",
+        "C) DevOps/Security",
+        "D) Design/UI-UX",
       ],
-      answer: "كل الاختيارات ممتازة!",
-      explanation: "اختار المجال اللي تحبه وركز عليه.",
+      answer: "All are great choices!",
+      explanation: "Pick one and focus on it for the best results.",
     },
     {
-      title: "🔥 سؤال للنقاش",
-      question: "منو اقوى بالتطوير: الماك ولا الويندوز؟",
+      title: "🔥 Hot Take",
+      question: "Tabs or Spaces? Defend your answer!",
       options: [
-        "A) Mac (اكيد)",
-        "B) Windows (الجوكر)",
-        "C) Linux (للمحترفين)",
-        "D) ما تفرق معاي",
+        "A) Tabs forever",
+        "B) Spaces only",
+        "C) Whatever the linter says",
+        "D) I use both chaotically",
       ],
-      answer: "D",
-      explanation: "بالنهاية الاداة ما تفرق كثر المبرمج نفسه!",
+      answer: "C",
+      explanation:
+        "Consistency within a project matters more than the choice itself!",
     },
   ];
   return fallbacks[Math.floor(Math.random() * fallbacks.length)];
@@ -170,19 +173,19 @@ function createChallengeEmbed(data, topic) {
   const optionsText =
     Array.isArray(data.options) && data.options.length > 0
       ? data.options.join("\n")
-      : "💬 شاركنا رايك بالتعليقات";
+      : "💬 Share your thoughts in the comments!";
 
   const embed = new EmbedBuilder()
-    .setTitle(data.title || "🧩 سؤال اليوم")
+    .setTitle(data.title || "🧩 Daily Challenge")
     .setDescription(
-      `**الموضوع:** ${topic}\n\n${data.question || "شاركونا اجاباتكم!"}`
+      `**Topic:** ${topic}\n\n${data.question || "Share your answers!"}`
     )
     .addFields({
-      name: "الخيارات",
+      name: "Options",
       value: optionsText,
     })
     .setColor(0x00d26a)
-    .setFooter({ text: "الاجابة الصحيحة موجودة بالردود 👇" })
+    .setFooter({ text: "Check the thread for the answer! 👇" })
     .setTimestamp();
 
   return embed;
