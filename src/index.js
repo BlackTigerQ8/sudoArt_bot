@@ -48,19 +48,19 @@ if (!TOKEN) {
 
 if (!GUILD_ID) {
   console.warn(
-    "⚠️ Warning: GUILD_ID not set. Some features may not work correctly."
+    "⚠️ Warning: GUILD_ID not set. Some features may not work correctly.",
   );
 }
 
 if (!CLIENT_ID) {
   console.warn(
-    "⚠️ Warning: CLIENT_ID not set. Slash commands will not be registered."
+    "⚠️ Warning: CLIENT_ID not set. Slash commands will not be registered.",
   );
 }
 
 if (!process.env.OPENROUTER_API_KEY) {
   console.warn(
-    "⚠️ Warning: OPENROUTER_API_KEY not set. AI challenges will use fallback questions."
+    "⚠️ Warning: OPENROUTER_API_KEY not set. AI challenges will use fallback questions.",
   );
 }
 
@@ -107,7 +107,7 @@ client.on("guildMemberAdd", async (member) => {
     if (channel) {
       await channel.send({ embeds: [welcomeEmbed] });
       console.log(
-        `[Welcome] Sent welcome embed for ${member.user.tag} (Member #${member.guild.memberCount})`
+        `[Welcome] Sent welcome embed for ${member.user.tag} (Member #${member.guild.memberCount})`,
       );
     } else {
       console.warn("[Welcome] Could not find welcome channel!");
@@ -129,7 +129,7 @@ client.on("messageCreate", async (message) => {
 
   try {
     console.log(
-      `[DM] Received message from ${message.author.tag}: ${message.content}`
+      `[DM] Received message from ${message.author.tag}: ${message.content}`,
     );
 
     const dmReply = new EmbedBuilder()
@@ -139,7 +139,7 @@ client.on("messageCreate", async (message) => {
           `I can only assist within the server and don't respond to DMs.\n\n` +
           `━━━━━━━━━━━━━━━━━━━━━━\n\n` +
           `شكراً لتواصلك! أنا البوت الرسمي لسيرفر مجتمع **م. عبدالله السلطاني**.\n` +
-          `أقدر أساعدك فقط داخل السيرفر ولا أرد على الرسائل الخاصة.`
+          `أقدر أساعدك فقط داخل السيرفر ولا أرد على الرسائل الخاصة.`,
       )
       .addFields(
         {
@@ -151,7 +151,7 @@ client.on("messageCreate", async (message) => {
           name: "🌐 Website | الموقع",
           value: "[aaalenezi.com](https://www.aaalenezi.com)",
           inline: true,
-        }
+        },
       )
       .setColor(0x5865f2)
       .setFooter({ text: "Abdullah Alsultani Community" })
@@ -174,7 +174,7 @@ client.once("ready", async () => {
   console.log("═══════════════════════════════════════════");
 
   // Initialize Engagement Module (Daily Challenges)
-  initEngagement(client);
+  // initEngagement(client);
 
   // Initialize Janitor Module (Auto-Moderation)
   initJanitor(client, IGNORED_CHANNELS);

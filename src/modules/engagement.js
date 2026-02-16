@@ -178,7 +178,7 @@ function createChallengeEmbed(data, topic) {
   const embed = new EmbedBuilder()
     .setTitle(data.title || "🧩 Daily Challenge")
     .setDescription(
-      `**Topic:** ${topic}\n\n${data.question || "Share your answers!"}`
+      `**Topic:** ${topic}\n\n${data.question || "Share your answers!"}`,
     )
     .addFields({
       name: "Options",
@@ -218,7 +218,7 @@ async function finalizeChallengeMessage(message, data) {
 
       // Send the answer inside the thread (spoiler hidden)
       await thread.send(
-        `||**الاجابة:** ${data.answer}\n\n**الشرح:** ${data.explanation}||`
+        `||**الاجابة:** ${data.answer}\n\n**الشرح:** ${data.explanation}||`,
       );
     }
   } catch (err) {
@@ -264,7 +264,7 @@ async function postDailyChallenge(client) {
   await finalizeChallengeMessage(message, data);
 
   console.log(
-    `[Engagement] ✅ Challenge posted to ${todayConfig.type} channel`
+    `[Engagement] ✅ Challenge posted to ${todayConfig.type} channel`,
   );
 }
 
@@ -304,7 +304,7 @@ async function postManualChallenge(interaction, topic) {
   } catch (err) {
     console.error("[Engagement] Manual challenge error:", err);
     await interaction.editReply(
-      "❌ Failed to generate challenge. Try again later."
+      "❌ Failed to generate challenge. Try again later.",
     );
   }
 }
